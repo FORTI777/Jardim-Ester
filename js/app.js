@@ -80,9 +80,9 @@ function versiculo(chave){
 /* uma flor está pronta quando o motivo está escrito */
 function florPronta(n){
   var f = T.flores[n];
-  if (!f) return false;
-  if (escrito(f.motivo)) return true;
-  return EXEMPLOS && n <= diaDoJardim();   /* no teste, tudo aparece */
+  if (f && escrito(f.motivo)) return true;
+  /* no modo de teste, as flores que eu ainda não escrevi aparecem como exemplo */
+  return EXEMPLOS && n >= 1 && n <= TOTAL_FLORES && n <= diaDoJardim();
 }
 function dadosDaFlor(n){
   var f = T.flores[n] || {};
@@ -683,6 +683,8 @@ function telaJardim(primeiraVez){
   if (primeiraVez && !plantada(1)){
     /* primeira visita: o convite para tocar na terra */
     setTimeout(conviteDeTerra, 1200);
+  } else if (ehOGrandeDia() && plantada(TOTAL_FLORES) && !estado.grandeDiaVisto){
+    setTimeout(grandeDia, 1600);
   } else {
     avisarFloresEsperando();
   }
@@ -762,10 +764,27 @@ function montarBuque(){
 /* ---------------------------------------------------------------------
    OS CANTEIROS
    --------------------------------------------------------------------- */
+var observadorDeCanteiros = null;
+
+/* preenche um canteiro só quando ela chega perto dele, para o site ficar leve */
+function preencherCanteiro(div){
+  if (div.dataset.cheio === "1") return;
+  div.dataset.cheio = "1";
+  var grade = div.querySelector(".grade-flores");
+  (div.listaDeFlores || []).forEach(function(n){
+    grade.appendChild(vasoDaFlor(n, div.dataset.fruto === "1"));
+  });
+}
+
 function montarCanteiros(){
   var caixa = $("rolagem-canteiros");
   caixa.innerHTML = "";
   var dia = diaDoJardim();
+
+  if (observadorDeCanteiros) observadorDeCanteiros.disconnect();
+  observadorDeCanteiros = new IntersectionObserver(function(entradas){
+    entradas.forEach(function(e){ if (e.isIntersecting) preencherCanteiro(e.target); });
+  }, { root: caixa, rootMargin: "0px 150%" });
 
   CANTEIROS.forEach(function(c){
     /* só mostra os canteiros que já começaram */
@@ -789,8 +808,7 @@ function montarCanteiros(){
       (completo ? '<div class="plaquinha">' + escapar(c.nome + " " + c.ano) + '</div>' : "") +
       '<div class="grade-flores"></div>';
 
-    var grade = div.querySelector(".grade-flores");
-    doCanteiro.forEach(function(n){ grade.appendChild(vasoDaFlor(n)); });
+    div.listaDeFlores = doCanteiro;
 
     /* aviso de que faltam flores para eu acrescentar */
     if (dia >= c.primeiraFlor && dia <= c.ultimaFlor && dia > ultimaFlorPronta()){
@@ -801,6 +819,7 @@ function montarCanteiros(){
       div.appendChild(p);
     }
     caixa.appendChild(div);
+    observadorDeCanteiros.observe(div);
   });
 
   /* o canteiro especial do fruto do Espírito */
@@ -813,8 +832,8 @@ function montarCanteiros(){
       '<div class="contador">' + doFruto.filter(plantada).length + " de 9" + '</div>' +
       '<div class="canteiro-fruto"><div class="arco-folhas">' + MIDIA.arcoFolhas() + '</div>' +
       '<div class="grade-flores"></div></div>';
-    var gradeF = especial.querySelector(".grade-flores");
-    doFruto.forEach(function(n){ gradeF.appendChild(vasoDaFlor(n, true)); });
+    especial.listaDeFlores = doFruto;
+    especial.dataset.fruto = "1";
 
     if (FRUTO.every(plantada)){
       var g = versiculo("galatas5_22");
@@ -826,12 +845,14 @@ function montarCanteiros(){
       especial.appendChild(fim);
     }
     caixa.appendChild(especial);
+    observadorDeCanteiros.observe(especial);
   }
 
   /* abre no canteiro do mês de hoje */
-  var atual = CANTEIROS.filter(function(c){ return c.primeiraFlor <= dia; }).length - 1;
+  var atual = Math.max(0, CANTEIROS.filter(function(c){ return c.primeiraFlor <= dia; }).length - 1);
+  if (caixa.children[atual]) preencherCanteiro(caixa.children[atual]);
   requestAnimationFrame(function(){
-    caixa.scrollLeft = caixa.clientWidth * Math.max(0, atual);
+    caixa.scrollLeft = caixa.clientWidth * atual;
   });
 }
 
@@ -1364,16 +1385,6 @@ function iniciar(){
     else console.log("PARTE 1 completa, pode publicar.");
   }
 }
-
-/* quando ela vê as cartas, guardamos quais já existiam */
-window.addEventListener("beforeunload", function(){
-  T.cartas.forEach(function(c){
-    if (cartaEscrita(c) && estado.cartasVistas.indexOf(c.id) === -1 && estado.cartasAbertas.indexOf(c.id) !== -1){
-      estado.cartasVistas.push(c.id);
-    }
-  });
-  salvar();
-});
 
 iniciar();
 
