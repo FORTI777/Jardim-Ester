@@ -1,0 +1,4 @@
+Coloque aqui: video-01-ramalhete, video-02-amanhecer, video-03-vara-florescendo, video-04-rosa, video-05-peonia, video-06-lotus.
+
+A pagina aceita webp, jpg, png (imagens), mp4 ou webm (videos), mp3 ou m4a (audio).
+Nao precisa renomear as extensoes: a pagina procura sozinha.

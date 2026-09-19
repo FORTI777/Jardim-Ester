@@ -1,0 +1,4 @@
+Coloque aqui: flor-01-ramalhete, flor-02-nome ... flor-20-nome, e os botoes botao-01-ramalhete, botao-XX-nome.
+
+A pagina aceita webp, jpg, png (imagens), mp4 ou webm (videos), mp3 ou m4a (audio).
+Nao precisa renomear as extensoes: a pagina procura sozinha.

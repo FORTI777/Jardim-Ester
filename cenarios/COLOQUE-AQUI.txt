@@ -1,0 +1,4 @@
+Coloque aqui: cenario-01-cadeado, 02-ceu-noite, 03-ceu-amanhecer, 04-jardim, 05-envelope-fechado, 06-envelope-aberto, 07-papel-carta, 08-broto, 09a-vara-seca, 09b-vara-florida.
+
+A pagina aceita webp, jpg, png (imagens), mp4 ou webm (videos), mp3 ou m4a (audio).
+Nao precisa renomear as extensoes: a pagina procura sozinha.

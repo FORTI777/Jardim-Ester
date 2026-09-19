@@ -1,0 +1,8 @@
+testes/
+originais/
+rascunhos/
+*.psd
+*.ai
+Thumbs.db
+desktop.ini
+.DS_Store
